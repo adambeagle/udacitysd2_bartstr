@@ -1,0 +1,12 @@
+{
+  "name": "bartstr",
+  "description": "Udacity Senior Web Developer Project 2",
+  "version": "0.0.0",
+  "homepage": "",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "knockout": "~3.4.0",
+    "jquery": "^2.2.0"
+  }
+}

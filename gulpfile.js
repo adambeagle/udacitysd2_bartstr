@@ -97,7 +97,10 @@ gulp.task('copy-js-dev', function() {
     'bower_components/knockout/dist/knockout.debug.js',
   ]);
 
-  gulp.src('app/**/*.js')
+  gulp.src('app/config.js')
+    .pipe(gulp.dest('dist/js'));
+
+  gulp.src(['app/**/*.js', '!app/config.js'])
     .pipe(concat('bartstr.js'))
     .pipe(gulp.dest('dist/js'));
 

@@ -15,12 +15,20 @@
   <![endif]-->
   
   <div role="main">
+    <label for="departSelect">Depart</label>
+    <select id="departSelect" data-bind="options: stations, optionsText: 'name', optionsCaption: '(Select station...)', value: originStation, event: {change: getOriginTimes}">
+    </select>
+
+    <label for="arriveSelect">Depart</label>
+    <select id="arriveSelect" data-bind="options: stations, optionsText: 'name', optionsCaption: '(Select station...)', value: destStation, enable: originStation">
+    </select>
   </div>
   <!-- production_only 
     <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
   -->
   <!-- inject:js -->
   <!-- endinject -->
+  <script src="js/config.js"></script>
   <script src="js/bartstr.js"></script>
 </body>
 </html>

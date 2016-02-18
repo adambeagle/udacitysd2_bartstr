@@ -24,5 +24,8 @@
     "postinstall": "bower install",
     "prestart": "npm install",
     "start": "http-server app/dist/ -p 8000 -c-1"
+  },
+  "dependencies": {
+    "gulp-webpack": "^1.5.0"
   }
 }

@@ -6,8 +6,8 @@
   this app can function
   ~~~~~~~~~~~~~~~~~~~~~
 */
-var CONFIG = {
+module.exports = {
   keys: {
-    bart: "XXX-XXX-XXX" // Bart API key goes here
+    bart: "XXXX-XXXX-XXXX-XXXX" // Bart API key goes here
   }
-}
+};

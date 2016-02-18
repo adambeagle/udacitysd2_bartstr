@@ -7,11 +7,13 @@ var gulp = require('gulp'),
   inject = require('gulp-inject'),
   replace = require('gulp-replace'),
   concat = require('gulp-concat'),
-  uglify = require('gulp-uglify');
+  uglify = require('gulp-uglify'),
+  webpack = require('gulp-webpack'),
+  webpackConfig = require('./webpack.config.js');
 
-gulp.task('default', ['copy-js-dev', 'copy-html', 'copy-index-dev', 'copy-images', 'styles', 'fonts', 'lint'], function() {
+gulp.task('default', ['webpack', 'copy-js-dev', 'copy-html', 'copy-index-dev', 'copy-images', 'styles', 'fonts', 'lint'], function() {
   gulp.watch('app/assets/sass/**/*.scss', ['styles']);
-  gulp.watch('app/**/*.js', ['lint', 'copy-js-dev']);
+  gulp.watch('app/**/*.js', ['lint', 'copy-js-dev', 'webpack']);
   gulp.watch('app/*/**/*.html', ['copy-html']);
   gulp.watch('app/index.html', ['copy-index-dev']);
   gulp.watch('dist/**/*.html').on('change', browserSync.reload);
@@ -25,9 +27,8 @@ gulp.task('default', ['copy-js-dev', 'copy-html', 'copy-index-dev', 'copy-images
 gulp.task('dist', ['js-dist', 'copy-html', 'copy-index', 'copy-images', 'fonts', 'styles']);
 
 // Concatenate and uglify app JS; place in dist/js
-gulp.task('js-dist', ['copy-js'], function() {
-  gulp.src('app/**/*.js')
-    .pipe(concat('bartstr.js'))
+gulp.task('js-dist', ['copy-js', 'webpack'], function() {
+  return gulp.src('dist/js/' + webpackConfig.output.filename)
     .pipe(uglify())
     .pipe(gulp.dest('dist/js'));
 });
@@ -42,7 +43,7 @@ gulp.task('lint', function() {
 
 // Inject locally-hosted third-party JS (e.g. Knockout) into index.html
 gulp.task('copy-index-dev', ['copy-js-dev'], function() {
-  gulp.src('app/index.html')
+  return gulp.src('app/index.html')
     .pipe(replace(/<!-- dev_only ([\s\S]*?)-->/g, '$1'))
     .pipe(inject(gulp.src('dist/js/lib/*.js'), {
       ignorePath: '/dist/',
@@ -54,7 +55,7 @@ gulp.task('copy-index-dev', ['copy-js-dev'], function() {
 // Add production-only CDN-hosted third-party JS to index.html and copy to dist
 // Also inject any third party JS from dist/js/lib
 gulp.task('copy-index', ['copy-js'], function() {
-  gulp.src('app/index.html')
+  return gulp.src('app/index.html')
     .pipe(replace(/<!-- production_only ([\s\S]*?)-->/g, '$1'))
     .pipe(inject(gulp.src('dist/js/lib/*.js'), {
       ignorePath: '/dist/',
@@ -65,13 +66,13 @@ gulp.task('copy-index', ['copy-js'], function() {
 
 // Copy all non-index .html files to dist
 gulp.task('copy-html', function() {
-  gulp.src('app/*/**/*.html')
+  return gulp.src('app/*/**/*.html')
     .pipe(gulp.dest('dist'));
 });
 
 // Copy any images to dist/img
 gulp.task('copy-images', function() {
-  gulp.src('app/assets/img/*')
+  return gulp.src('app/assets/img/*')
     .pipe(gulp.dest('dist/img'));
 });
 
@@ -97,19 +98,12 @@ gulp.task('copy-js-dev', function() {
     'bower_components/knockout/dist/knockout.debug.js',
   ]);
 
-  gulp.src('app/config.js')
-    .pipe(gulp.dest('dist/js'));
-
-  gulp.src(['app/**/*.js', '!app/config.js'])
-    .pipe(concat('bartstr.js'))
-    .pipe(gulp.dest('dist/js'));
-
   return thirdPartySources.pipe(gulp.dest('dist/js/lib'));
 });
 
 // Prepare .scss styles for production (minify, autoprefix) and place in dist
 gulp.task('styles', function() {
-  gulp.src('app/assets/sass/**/*.scss')
+  return gulp.src('app/assets/sass/**/*.scss')
     .pipe(sass({
       outputStyle: 'compressed'
     }).on('error', sass.logError))
@@ -133,10 +127,22 @@ gulp.task('fonts', function() {
 
 // Run Jasmine integration tests in Chrome
 gulp.task('tests', function() {
-  gulp.src('app/**/*_test.js')
+  return gulp.src('app/**/*_test.js')
     .pipe(jasmine({
       integration: true,
       vendor: 'app/**/*.js'
     }));
 });
 
+/*
+  Build app into one file (whose name is determined by 
+  webpackConfig.output.filename) with module dependencies handled.
+
+  WARNING: This task assumes webpackConfig.entry is a single filename
+  with extension (or something else passable to gulp.src)
+*/
+gulp.task('webpack', function() {
+  return gulp.src(webpackConfig.entry)
+    .pipe(webpack(webpackConfig))
+    .pipe(gulp.dest('dist/js'));
+});

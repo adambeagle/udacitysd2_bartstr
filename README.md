@@ -13,7 +13,7 @@ This project will be a mobile-installable web app which reports departure/arriva
 2. Bower
 3. An [api.bart.gov API key](http://www.bart.gov/schedules/developers/api). Note the linked page provides a key that may be used without registration. Please respect the bart.gov developers by only using this key for light usage.
 
-All other requirements (Angular, Gulp, etc.) are fetched by NPM and Bower.
+All other requirements (Knockout, Gulp, etc.) are fetched by NPM and Bower.
 
 ### Installation/Build
 
